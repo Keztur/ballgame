@@ -69,31 +69,8 @@ impl Balls {
             let x_possible_new = ball.x + x_vec + x_mouse_vec;
             let y_possible_new = ball.y + y_vec + y_mouse_vec;
 
-            let x_border = width - ball.radius;
-            
-            if x_possible_new < ball.radius {
-                ball.x_last = ball.radius + (ball.radius - ball.x);
-                ball.x = ball.radius - (x_possible_new - ball.radius) + x_mouse_vec;
-            } else if x_possible_new > x_border {
-                ball.x_last = x_border + (x_border - ball.x);
-                ball.x = x_border - (x_possible_new - x_border) + x_mouse_vec;
-            } else {
-                ball.x_last = ball.x;
-                ball.x = x_possible_new;
-            }
-            
-            let y_border = height - ball.radius;
-
-            if y_possible_new < ball.radius {
-                ball.y_last = ball.radius + (ball.radius - ball.y);
-                ball.y = ball.radius - (y_possible_new - ball.radius) + y_mouse_vec;
-            } else if  y_possible_new > y_border {
-                ball.y_last = y_border + (y_border - ball.y);
-                ball.y = y_border - (y_possible_new - y_border) + y_mouse_vec;
-            } else {
-                ball.y_last = ball.y;
-                ball.y = y_possible_new;
-            }
+            reflect(x_possible_new, ball.radius, &mut ball.x, &mut ball.x_last, x_mouse_vec, width);
+            reflect(y_possible_new, ball.radius, &mut ball.y, &mut ball.y_last, y_mouse_vec, height);
 
             draw_ball(context, ball.x, ball.y, ball.radius, &ball.color);
             
@@ -108,7 +85,23 @@ impl Balls {
     }
 
 }
+    
+fn reflect(new_pos: f64, radius: f64, pos: &mut f64, pos_last: &mut f64, mouse_vec: f64, screen:f64) {
+        
+    let border = screen - radius;
 
+    if new_pos < radius {
+        *pos_last = radius + (radius - *pos);
+        *pos = radius - (new_pos - radius) + mouse_vec;
+    } else if  new_pos > border {
+        *pos_last = border + (border - *pos);
+        *pos = border - (new_pos - border) + mouse_vec;
+    } else {
+        *pos_last = *pos;
+        *pos = new_pos;
+    }
+
+}
 
 fn random_color() -> String {
     let r = fastrand::i32(1..200);
@@ -116,3 +109,19 @@ fn random_color() -> String {
     let b = fastrand::i32(1..200);
     format!("rgb({r},{g},{b})")
 }
+
+
+// fn collision(balls: &Vec<Ball>, radius: f64, x: &mut f64, y: &mut f64)  {
+
+//     for ball_col in balls.iter() {
+                
+//         let distance: f64 = ((*x - ball_col.x).exp2() + (*y - ball_col.y).exp2()).sqrt();
+        
+//         if distance < radius + ball_col.radius {
+//             *x += 0.1 * (ball_col.x - *x);
+//             *y += 0.1 * (ball_col.y - *y);
+
+//         }
+//     }
+// }
+    
