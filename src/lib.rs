@@ -59,20 +59,37 @@ impl Balls {
 
     pub fn simulate(&mut self, x_mouse_vec: f64, y_mouse_vec: f64, width: f64, height: f64, context: &CanvasRenderingContext2d ) {
 
-        for ball in self.balls.iter_mut() {
+        let balls = &mut self.balls;
+        // let ubound = balls.len();
+        
+        for i in 0..balls.len() {
 
-            let x_vec = (ball.x - ball.x_last) * FRICTION;
-            let y_vec = (ball.y - ball.y_last) * FRICTION;
+            let x_vec = (balls[i].x - balls[i].x_last) * FRICTION;
+            let y_vec = (balls[i].y - balls[i].y_last) * FRICTION;
             let x_mouse_vec = x_mouse_vec * FORCE;
             let y_mouse_vec = y_mouse_vec * FORCE;
 
-            let x_possible_new = ball.x + x_vec + x_mouse_vec;
-            let y_possible_new = ball.y + y_vec + y_mouse_vec;
+            let x_possible_new = balls[i].x + x_vec + x_mouse_vec;
+            let y_possible_new = balls[i].y + y_vec + y_mouse_vec;
 
-            reflect(x_possible_new, ball.radius, &mut ball.x, &mut ball.x_last, x_mouse_vec, width);
-            reflect(y_possible_new, ball.radius, &mut ball.y, &mut ball.y_last, y_mouse_vec, height);
+            reflect_x(x_possible_new, &mut balls[i], x_mouse_vec, width);
+            reflect_y(y_possible_new, &mut balls[i], y_mouse_vec, height);
+            
+            // collision(self.balls, balls[i].radius, &mut balls[i].x, &mut balls[i].y);
 
-            draw_ball(context, ball.x, ball.y, ball.radius, &ball.color);
+           
+            
+            // for j in 0..ubound {
+            //     let distance: f64 = ((balls[i].x - balls[j].x).exp2() + (balls[i].y - balls[j].y).exp2()).sqrt();
+                
+            //     if distance < balls[i].radius + balls[j].radius {
+            //         balls[i].x += 0.1 * (balls[j].x - balls[i].x);
+            //         balls[i].y += 0.1 * (balls[j].y - balls[i].y);
+        
+            //     }
+            // }
+
+            draw_ball(context, balls[i].x, balls[i].y, balls[i].radius, &balls[i].color);
             
         }
     }
@@ -86,13 +103,15 @@ impl Balls {
 
 }
     
-fn reflect(new_pos: f64, radius: f64, pos: &mut f64, pos_last: &mut f64, mouse_vec: f64, screen:f64) {
+fn reflect_x(new_pos: f64, ball: &mut Ball, mouse_vec: f64, screen:f64) {
         
-    let border = screen - radius;
+    let border = screen - ball.radius;
+    let pos = &mut ball.x;
+    let pos_last = &mut ball.x_last;
 
-    if new_pos < radius {
-        *pos_last = radius + (radius - *pos);
-        *pos = radius - (new_pos - radius) + mouse_vec;
+    if new_pos < ball.radius {
+        *pos_last = ball.radius + (ball.radius - *pos);
+        *pos = ball.radius - (new_pos - ball.radius) + mouse_vec;
     } else if  new_pos > border {
         *pos_last = border + (border - *pos);
         *pos = border - (new_pos - border) + mouse_vec;
@@ -103,6 +122,53 @@ fn reflect(new_pos: f64, radius: f64, pos: &mut f64, pos_last: &mut f64, mouse_v
 
 }
 
+fn reflect_y(new_pos: f64, ball: &mut Ball, mouse_vec: f64, screen:f64) {
+        
+    let border = screen - ball.radius;
+    let pos = &mut ball.y;
+    let pos_last = &mut ball.y_last;
+
+    if new_pos < ball.radius {
+        *pos_last = ball.radius + (ball.radius - *pos);
+        *pos = ball.radius - (new_pos - ball.radius) + mouse_vec;
+    } else if  new_pos > border {
+        *pos_last = border + (border - *pos);
+        *pos = border - (new_pos - border) + mouse_vec;
+    } else {
+        *pos_last = *pos;
+        *pos = new_pos;
+    }
+
+}
+    
+    
+// fn reflect(new_pos: f64, ball: &mut Ball, axis: &str, mouse_vec: f64, screen:f64) {
+        
+//     let border = screen - ball.radius;
+//     let pos: &mut f64;
+//     let pos_last: &mut f64;
+
+//     if axis == "x" {
+//         pos = &mut ball.x;
+//         pos_last = &mut ball.x_last;
+//     } else {
+//         pos = &mut ball.y;
+//         pos_last = &mut ball.y_last;
+//     }
+
+//     if new_pos < ball.radius {
+//         *pos_last = ball.radius + (ball.radius - *pos);
+//         *pos = ball.radius - (new_pos - ball.radius) + mouse_vec;
+//     } else if  new_pos > border {
+//         *pos_last = border + (border - *pos);
+//         *pos = border - (new_pos - border) + mouse_vec;
+//     } else {
+//         *pos_last = *pos;
+//         *pos = new_pos;
+//     }
+
+// }
+
 fn random_color() -> String {
     let r = fastrand::i32(1..200);
     let g = fastrand::i32(1..200);
@@ -111,15 +177,14 @@ fn random_color() -> String {
 }
 
 
-// fn collision(balls: &Vec<Ball>, radius: f64, x: &mut f64, y: &mut f64)  {
+// fn collision(balls: Vec<Ball>, radius: f64, x: &mut f64, y: &mut f64)  {
 
-//     for ball_col in balls.iter() {
-                
-//         let distance: f64 = ((*x - ball_col.x).exp2() + (*y - ball_col.y).exp2()).sqrt();
+//     for i in 0..balls.len() {
+//         let distance: f64 = ((*x - balls[i].x).exp2() + (*y - balls[i].y).exp2()).sqrt();
         
-//         if distance < radius + ball_col.radius {
-//             *x += 0.1 * (ball_col.x - *x);
-//             *y += 0.1 * (ball_col.y - *y);
+//         if distance < radius + balls[i].radius {
+//             *x += 0.1 * (balls[i].x - *x);
+//             *y += 0.1 * (balls[i].y - *y);
 
 //         }
 //     }
