@@ -60,32 +60,37 @@ impl Balls {
     pub fn simulate(&mut self, x_mouse_vec: f64, y_mouse_vec: f64, width: f64, height: f64, context: &CanvasRenderingContext2d ) {
 
         let balls = &mut self.balls;
-        // let ubound = balls.len();
+        let ubound = balls.len();
         
         for i in 0..balls.len() {
 
-            let x_vec = (balls[i].x - balls[i].x_last) * FRICTION;
-            let y_vec = (balls[i].y - balls[i].y_last) * FRICTION;
+            let mut x_vec = (balls[i].x - balls[i].x_last) * FRICTION;
+            let mut y_vec = (balls[i].y - balls[i].y_last) * FRICTION;
             let x_mouse_vec = x_mouse_vec * FORCE;
             let y_mouse_vec = y_mouse_vec * FORCE;
+
+            for j in 0..ubound {
+
+                // let distance: f64 = (((balls[i].x - balls[j].x).powi(2) + (balls[i].y - balls[j].y).powi(2)).sqrt()).abs();
+                let distance: f64 = (balls[i].x - balls[j].x).hypot(balls[i].y - balls[j].y);
+
+                if i != j {   
+                    if distance < balls[i].radius + balls[j].radius {
+
+                        println!("dist: {}, radius: {}", distance, balls[i].radius + balls[j].radius);
+
+                        // balls[i].color = random_color();
+                        x_vec += 0.1 * (balls[i].x - balls[j].x);
+                        y_vec += 0.1 * (balls[i].y - balls[j].y);
+                    }
+                }
+            }
 
             let x_possible_new = balls[i].x + x_vec + x_mouse_vec;
             let y_possible_new = balls[i].y + y_vec + y_mouse_vec;
 
             reflect("x", x_possible_new, &mut balls[i], x_mouse_vec, width);
             reflect("y", y_possible_new, &mut balls[i], y_mouse_vec, height);
-            
-            // collision(self.balls, balls[i].radius, &mut balls[i].x, &mut balls[i].y);
-            
-            // for j in 0..ubound {
-            //     let distance: f64 = ((balls[i].x - balls[j].x).exp2() + (balls[i].y - balls[j].y).exp2()).sqrt();
-                
-            //     if distance < balls[i].radius + balls[j].radius {
-            //         balls[i].x += 0.1 * (balls[j].x - balls[i].x);
-            //         balls[i].y += 0.1 * (balls[j].y - balls[i].y);
-        
-            //     }
-            // }
 
             draw_ball(context, balls[i].x, balls[i].y, balls[i].radius, &balls[i].color);
             
@@ -100,6 +105,23 @@ impl Balls {
     }
 
 }
+
+// fn collision(balls: &mut Vec<Ball>, ball: &mut Ball)  {
+
+//     let radius = ball.radius;
+//     let x = &mut ball.x;
+//     let y = &mut ball.y;
+
+//     for i in 0..balls.len() {
+//         let distance: f64 = ((*x - balls[i].x).exp2() + (*y - balls[i].y).exp2()).sqrt();
+        
+//         if distance < radius + balls[i].radius {
+//             *x += 0.1 * (balls[i].x - *x);
+//             *y += 0.1 * (balls[i].y - *y);
+
+//         }
+//     }
+// }
 
 fn reflect(axis: &str, new_pos: f64, ball: &mut Ball, mouse_vec: f64, screen:f64) {
         
@@ -137,16 +159,5 @@ fn random_color() -> String {
 }
 
 
-// fn collision(balls: Vec<Ball>, radius: f64, x: &mut f64, y: &mut f64)  {
 
-//     for i in 0..balls.len() {
-//         let distance: f64 = ((*x - balls[i].x).exp2() + (*y - balls[i].y).exp2()).sqrt();
-        
-//         if distance < radius + balls[i].radius {
-//             *x += 0.1 * (balls[i].x - *x);
-//             *y += 0.1 * (balls[i].y - *y);
-
-//         }
-//     }
-// }
     
