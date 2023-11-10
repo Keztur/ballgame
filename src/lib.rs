@@ -64,36 +64,75 @@ impl Balls {
         
         for i in 0..balls.len() {
 
-            let mut x_vec = (balls[i].x - balls[i].x_last) * FRICTION;
-            let mut y_vec = (balls[i].y - balls[i].y_last) * FRICTION;
+            let x_vec = (balls[i].x - balls[i].x_last) * FRICTION;
+            let y_vec = (balls[i].y - balls[i].y_last) * FRICTION;
             let x_mouse_vec = x_mouse_vec * FORCE;
             let y_mouse_vec = y_mouse_vec * FORCE;
 
-            for j in 0..ubound {
+            balls[i].x_last = balls[i].x;
+            balls[i].y_last = balls[i].y;
+            balls[i].x += x_vec + x_mouse_vec;
+            balls[i].y += y_vec + y_mouse_vec;
+            
+        }
 
+        for i in 0..balls.len() {
+            for j in (i+1)..ubound {
                 if i != j {   
                     
                     let distance: f64 = (balls[i].x - balls[j].x).hypot(balls[i].y - balls[j].y);
+    
+                    let intersection = balls[i].radius + balls[j].radius - distance;
 
-                    if distance < balls[i].radius + balls[j].radius {
-                        x_vec += 0.1 * (balls[i].x - balls[j].x);
-                        y_vec += 0.1 * (balls[i].y - balls[j].y);
+                    if intersection > 0.0 {
+
+                        // balls[i].x_last = balls[i].x;
+                        // balls[i].y_last = balls[i].y;
+                        
+                        // balls[j].x_last = balls[j].x;
+                        // balls[j].y_last = balls[j].y;
+
+                        let x_delta = (balls[i].x - balls[i].x_last) + (balls[j].x - balls[j].x_last);
+                        let y_delta = (balls[i].y - balls[i].y_last) + (balls[j].y - balls[j].y_last);
+
+                        balls[i].x = balls[i].x_last + x_delta;
+                        balls[i].y = balls[i].y_last + y_delta;
+
+                        balls[j].x = balls[j].x_last - x_delta;
+                        balls[j].y = balls[j].y_last - y_delta;
+
+                        //invert direction (funny)
+                        // let mut last = balls[i].x_last;
+                        // balls[i].x_last = balls[i].x;
+                        // balls[i].x = last;
+                        // last = balls[i].y_last;
+                        // balls[i].y_last = balls[i].y;
+                        // balls[i].y = last;
+
+                        // last = balls[j].x_last;
+                        // balls[j].x_last = balls[j].x;
+                        // balls[j].x = last;
+                        // last = balls[j].y_last;
+                        // balls[j].y_last = balls[j].y;
+                        // balls[j].y = last;
                     }
+    
                 }
             }
+        }
 
-            let x_possible_new = balls[i].x + x_vec + x_mouse_vec;
-            let y_possible_new = balls[i].y + y_vec + y_mouse_vec;
+        for i in 0..balls.len() {
 
             (balls[i].x, balls[i].x_last) = 
-            reflect(balls[i].x, x_possible_new, balls[i].radius, x_mouse_vec, width - balls[i].radius);
+            reflect(balls[i].x_last, balls[i].x, balls[i].radius, width - balls[i].radius);
 
             (balls[i].y, balls[i].y_last) = 
-            reflect(balls[i].y, y_possible_new, balls[i].radius, y_mouse_vec, height - balls[i].radius);
+            reflect(balls[i].y_last, balls[i].y, balls[i].radius, height - balls[i].radius);
 
             draw_ball(context, balls[i].x, balls[i].y, balls[i].radius, &balls[i].color);
             
         }
+
     }
 
     pub fn add(&mut self) {
@@ -105,23 +144,22 @@ impl Balls {
 
 }
 
-fn reflect(mut pos: f64, new_pos: f64, radius: f64, mouse_vec: f64, border:f64) -> (f64, f64) {
+fn reflect(mut pos: f64, new_pos: f64, radius: f64, border:f64) -> (f64, f64) {
 
     let pos_last: f64;    
 
     if new_pos < radius {           //collision with low border (left or up)
         pos_last = radius + (radius - pos);
-        pos = radius - (new_pos - radius) + mouse_vec;
+        pos = radius - (new_pos - radius);
     } else if  new_pos > border {   //collision with high border (right or bottom)
         pos_last = border + (border - pos);
-        pos = border - (new_pos - border) + mouse_vec;
+        pos = border - (new_pos - border);
     } else {                        //no collision
         pos_last = pos;
         pos = new_pos;
     }
 
     (pos, pos_last)    
-
 }
     
 
