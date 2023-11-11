@@ -38,8 +38,8 @@ fn draw_ball(context: &CanvasRenderingContext2d, x: f64, y: f64, radius: f64, co
 pub struct Ball {
    pub x: f64,
    pub y: f64,
-   pub x_last: f64,
-   pub y_last: f64,
+   pub x_vec: f64,
+   pub y_vec: f64,
    pub radius: f64,
    pub color: String,
 }
@@ -64,15 +64,14 @@ impl Balls {
         
         for i in 0..balls.len() {
 
-            let x_vec = (balls[i].x - balls[i].x_last) * FRICTION;
-            let y_vec = (balls[i].y - balls[i].y_last) * FRICTION;
-            let x_mouse_vec = x_mouse_vec * FORCE;
-            let y_mouse_vec = y_mouse_vec * FORCE;
+            let x_vec = (balls[i].x_vec * FRICTION) + (x_mouse_vec * FORCE);
+            let y_vec = (balls[i].y_vec * FRICTION) + (y_mouse_vec * FORCE);
 
-            balls[i].x_last = balls[i].x;
-            balls[i].y_last = balls[i].y;
-            balls[i].x += x_vec + x_mouse_vec;
-            balls[i].y += y_vec + y_mouse_vec;
+            balls[i].x_vec = x_vec;
+            balls[i].y_vec = y_vec;
+
+            balls[i].x += x_vec;
+            balls[i].y += y_vec;
             
         }
 
@@ -85,36 +84,43 @@ impl Balls {
                     let intersection = balls[i].radius + balls[j].radius - distance;
 
                     if intersection > 0.0 {
-
-                        // balls[i].x_last = balls[i].x;
-                        // balls[i].y_last = balls[i].y;
                         
-                        // balls[j].x_last = balls[j].x;
-                        // balls[j].y_last = balls[j].y;
+                        //reset ball to last position before collision
+                        balls[i].x = balls[i].x - balls[i].x_vec;
+                        balls[i].y = balls[i].y - balls[i].y_vec;
+                        balls[j].x = balls[j].x - balls[j].x_vec;
+                        balls[j].y = balls[j].y - balls[j].y_vec;
 
-                        let x_delta = (balls[i].x - balls[i].x_last) + (balls[j].x - balls[j].x_last);
-                        let y_delta = (balls[i].y - balls[i].y_last) + (balls[j].y - balls[j].y_last);
+                        //calculate collision vector
+                        let mut colvec_x = balls[i].x - balls[j].x;
+                        let mut colvec_y = balls[i].y - balls[j].y;
 
-                        balls[i].x = balls[i].x_last + x_delta;
-                        balls[i].y = balls[i].y_last + y_delta;
+                        //get amount of collision vector
+                        let colvec_amount = (colvec_x).hypot(colvec_y).abs();
+                        //normalize collision vector
+                        colvec_x = colvec_x / colvec_amount;
+                        colvec_y = colvec_y / colvec_amount;
 
-                        balls[j].x = balls[j].x_last - x_delta;
-                        balls[j].y = balls[j].y_last - y_delta;
+                        //get amount auf (velocity) vector for each ball
+                        let ball_i_amount = (balls[i].x_vec).hypot(balls[i].y_vec);
+                        let ball_j_amount = (balls[j].x_vec).hypot(balls[j].y_vec);
+                        
+                        //calculate final collision vecor
+                        colvec_x *= ball_i_amount * 1.1;
+                        colvec_y *= ball_j_amount * 1.1;
 
-                        //invert direction (funny)
-                        // let mut last = balls[i].x_last;
-                        // balls[i].x_last = balls[i].x;
-                        // balls[i].x = last;
-                        // last = balls[i].y_last;
-                        // balls[i].y_last = balls[i].y;
-                        // balls[i].y = last;
+                        //save new vector
+                        balls[i].x_vec += colvec_x;
+                        balls[i].y_vec += colvec_y;
+                        balls[j].x_vec -= colvec_x;
+                        balls[j].y_vec -= colvec_y;
 
-                        // last = balls[j].x_last;
-                        // balls[j].x_last = balls[j].x;
-                        // balls[j].x = last;
-                        // last = balls[j].y_last;
-                        // balls[j].y_last = balls[j].y;
-                        // balls[j].y = last;
+                        //set new ball positions (with new vector)
+                        balls[i].x += balls[i].x_vec;
+                        balls[i].y += balls[i].y_vec;
+                        balls[j].x += balls[j].x_vec;
+                        balls[j].y += balls[j].y_vec;
+
                     }
     
                 }
@@ -123,11 +129,11 @@ impl Balls {
 
         for i in 0..balls.len() {
 
-            (balls[i].x, balls[i].x_last) = 
-            reflect(balls[i].x_last, balls[i].x, balls[i].radius, width - balls[i].radius);
+            (balls[i].x, balls[i].x_vec) = 
+            reflect(balls[i].x, balls[i].x_vec, balls[i].radius, width - balls[i].radius);
 
-            (balls[i].y, balls[i].y_last) = 
-            reflect(balls[i].y_last, balls[i].y, balls[i].radius, height - balls[i].radius);
+            (balls[i].y, balls[i].y_vec) = 
+            reflect(balls[i].y, balls[i].y_vec, balls[i].radius, height - balls[i].radius);
 
             draw_ball(context, balls[i].x, balls[i].y, balls[i].radius, &balls[i].color);
             
@@ -136,30 +142,29 @@ impl Balls {
     }
 
     pub fn add(&mut self) {
-        let radius = fastrand::i32(5..50);
+        let radius = fastrand::i32(5..50) as f64;
         let color = random_color();
-        let ball = Ball {x: 50.0, y: 50.0, x_last: 50.0, y_last: 50.0, radius: radius as f64, color};
+        let x_vec = fastrand::i32(1..15) as f64;
+        let y_vec = fastrand::i32(1..15) as f64;
+        let ball = Ball {x: 50.0, y: 50.0, x_vec, y_vec, radius, color};
         self.balls.push(ball);
     }
 
 }
 
-fn reflect(mut pos: f64, new_pos: f64, radius: f64, border:f64) -> (f64, f64) {
+fn reflect(mut pos: f64, mut vec: f64, radius: f64, border:f64) -> (f64, f64) {
 
-    let pos_last: f64;    
-
-    if new_pos < radius {           //collision with low border (left or up)
-        pos_last = radius + (radius - pos);
-        pos = radius - (new_pos - radius);
-    } else if  new_pos > border {   //collision with high border (right or bottom)
-        pos_last = border + (border - pos);
-        pos = border - (new_pos - border);
+    if pos < radius {           //collision with low border (left or up)
+        pos = radius - (pos - radius);
+        vec = -vec;
+    } else if  pos > border {   //collision with high border (right or bottom)
+        pos = border - (pos - border);
+        vec = -vec;
     } else {                        //no collision
-        pos_last = pos;
-        pos = new_pos;
+        pos = pos;
     }
 
-    (pos, pos_last)    
+    (pos, vec)    
 }
     
 

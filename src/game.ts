@@ -43,6 +43,33 @@ function simulation() {
 }
 
 
+// move ball
+window.addEventListener("mousemove", (evt) => {
+   
+    x_mouse = evt.clientX
+    y_mouse = evt.clientY
+
+}, false);
+
+window.addEventListener('resize', resizeCanvas, false);
+
+function resizeCanvas() {
+    canvas.width = window.innerWidth
+    canvas.height = window.innerHeight
+
+    width = canvas.width
+    height = canvas.height
+}
+
+window.addEventListener("keydown", (event) => {
+    if (event.key === ' ') {
+        add_ball()
+        // let xMouseVec = Math.random() * 30
+        // let yMouseVec = Math.random() * 30
+        // run_sim(xMouseVec, yMouseVec, width, height, ctx)
+    }
+});
+
 
 // function drawCenter(color: string, x: number, y: number, size: number) {
 //     ctx.beginPath();
@@ -90,33 +117,6 @@ function simulation() {
 
 // }
 
-
-// move ball
-window.addEventListener("mousemove", (evt) => {
-   
-    x_mouse = evt.clientX
-    y_mouse = evt.clientY
-
-}, false);
-
-window.addEventListener('resize', resizeCanvas, false);
-
-function resizeCanvas() {
-    canvas.width = window.innerWidth
-    canvas.height = window.innerHeight
-
-    width = canvas.width
-    height = canvas.height
-}
-
-window.addEventListener("keydown", (event) => {
-    if (event.key === ' ') {
-        add_ball()
-        let xMouseVec = Math.random() * 30
-        let yMouseVec = Math.random() * 30
-        run_sim(xMouseVec, yMouseVec, width, height, ctx)
-    }
-});
 
   
 // window.addEventListener("mousemove", (evt) => {
