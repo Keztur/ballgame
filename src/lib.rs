@@ -76,53 +76,47 @@ impl Balls {
         }
 
         for i in 0..balls.len() {
+
             for j in (i+1)..ubound {
-                if i != j {   
+                
+                let distance: f64 = (balls[i].x - balls[j].x).hypot(balls[i].y - balls[j].y);
+
+                let intersection = balls[i].radius + balls[j].radius - distance;
+
+                if intersection > 0.0 {
                     
-                    let distance: f64 = (balls[i].x - balls[j].x).hypot(balls[i].y - balls[j].y);
-    
-                    let intersection = balls[i].radius + balls[j].radius - distance;
+                    //reset ball to last position before collision
+                    balls[i].x = balls[i].x - balls[i].x_vec;
+                    balls[i].y = balls[i].y - balls[i].y_vec;
+                    balls[j].x = balls[j].x - balls[j].x_vec;
+                    balls[j].y = balls[j].y - balls[j].y_vec;
 
-                    if intersection > 0.0 {
-                        
-                        //reset ball to last position before collision
-                        balls[i].x = balls[i].x - balls[i].x_vec;
-                        balls[i].y = balls[i].y - balls[i].y_vec;
-                        balls[j].x = balls[j].x - balls[j].x_vec;
-                        balls[j].y = balls[j].y - balls[j].y_vec;
+                    //calculate collision vector
+                    let mut colvec_x = balls[i].x - balls[j].x;
+                    let mut colvec_y = balls[i].y - balls[j].y;
 
-                        //calculate collision vector
-                        let mut colvec_x = balls[i].x - balls[j].x;
-                        let mut colvec_y = balls[i].y - balls[j].y;
+                    //get amount of collision vector
+                    let colvec_amount = (colvec_x).hypot(colvec_y).abs();
+                    //normalize collision vector
+                    colvec_x = colvec_x / colvec_amount;
+                    colvec_y = colvec_y / colvec_amount;
 
-                        //get amount of collision vector
-                        let colvec_amount = (colvec_x).hypot(colvec_y).abs();
-                        //normalize collision vector
-                        colvec_x = colvec_x / colvec_amount;
-                        colvec_y = colvec_y / colvec_amount;
+                    //get amount auf (velocity) vector for each ball
+                    let ball_i_amount = (balls[i].x_vec).hypot(balls[i].y_vec) * 1.1;
+                    let ball_j_amount = (balls[j].x_vec).hypot(balls[j].y_vec) * 1.1;
+                    
+                    //save new vector
+                    balls[i].x_vec += colvec_x * ball_i_amount;
+                    balls[i].y_vec += colvec_y * ball_i_amount;
+                    balls[j].x_vec -= colvec_x * ball_j_amount;
+                    balls[j].y_vec -= colvec_y * ball_j_amount;
 
-                        //get amount auf (velocity) vector for each ball
-                        let ball_i_amount = (balls[i].x_vec).hypot(balls[i].y_vec);
-                        let ball_j_amount = (balls[j].x_vec).hypot(balls[j].y_vec);
-                        
-                        //calculate final collision vecor
-                        colvec_x *= ball_i_amount * 1.1;
-                        colvec_y *= ball_j_amount * 1.1;
+                    //set new ball positions (with new vector)
+                    balls[i].x += balls[i].x_vec;
+                    balls[i].y += balls[i].y_vec;
+                    balls[j].x += balls[j].x_vec;
+                    balls[j].y += balls[j].y_vec;
 
-                        //save new vector
-                        balls[i].x_vec += colvec_x;
-                        balls[i].y_vec += colvec_y;
-                        balls[j].x_vec -= colvec_x;
-                        balls[j].y_vec -= colvec_y;
-
-                        //set new ball positions (with new vector)
-                        balls[i].x += balls[i].x_vec;
-                        balls[i].y += balls[i].y_vec;
-                        balls[j].x += balls[j].x_vec;
-                        balls[j].y += balls[j].y_vec;
-
-                    }
-    
                 }
             }
         }
@@ -160,7 +154,7 @@ fn reflect(mut pos: f64, mut vec: f64, radius: f64, border:f64) -> (f64, f64) {
     } else if  pos > border {   //collision with high border (right or bottom)
         pos = border - (pos - border);
         vec = -vec;
-    } else {                        //no collision
+    } else {                    //no collision
         pos = pos;
     }
 
