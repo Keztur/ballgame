@@ -148,7 +148,7 @@ impl Balls {
             1 => values = [100.0, 200.0, 7.0, 0.0],
             2 => values = [700.0, 300.0, -7.0, 0.0],
             3 => values = [100.0, 300.0, 5.0, 0.0],
-            _=> values = [50.0, 50.0, 5.0, 5.0],
+            _=> values = [50.0, 50.0, fastrand::i32(1..15) as f64, fastrand::i32(1..15) as f64],
         }
 
         let ball = Ball {x: values[0], y: values[1], x_vec: values[2], y_vec: values[3], radius, color};
