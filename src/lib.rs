@@ -106,14 +106,14 @@ impl Balls {
                         let ball_j_amount = (balls[j].x_vec).hypot(balls[j].y_vec);
                         
                         //calculate final collision vecor
-                        colvec_x *= ball_i_amount * 1.1;
-                        colvec_y *= ball_j_amount * 1.1;
+                        // colvec_x *= ball_i_amount * 1.1;
+                        // colvec_y *= ball_j_amount * 1.1;
 
                         //save new vector
-                        balls[i].x_vec += colvec_x;
-                        balls[i].y_vec += colvec_y;
-                        balls[j].x_vec -= colvec_x;
-                        balls[j].y_vec -= colvec_y;
+                        balls[i].x_vec += colvec_x * ball_j_amount;
+                        balls[i].y_vec += colvec_y * ball_j_amount;
+                        balls[j].x_vec -= colvec_x * ball_i_amount;
+                        balls[j].y_vec -= colvec_y * ball_i_amount;
 
                         //set new ball positions (with new vector)
                         balls[i].x += balls[i].x_vec;
@@ -144,11 +144,26 @@ impl Balls {
     pub fn add(&mut self) {
         let radius = fastrand::i32(5..50) as f64;
         let color = random_color();
-        let x_vec = fastrand::i32(1..15) as f64;
-        let y_vec = fastrand::i32(1..15) as f64;
-        let ball = Ball {x: 50.0, y: 50.0, x_vec, y_vec, radius, color};
+        let ball_count = self.balls.len();
+        let values: [f64; 4];
+
+        match ball_count {
+            0 => values = [600.0, 500.0, 0.0, 0.0],
+            1 => values = [100.0, 500.0, 7.0, 0.0],
+            _=> values = [50.0, 50.0, 5.0, 5.0],
+        }
+
+        let ball = Ball {x: values[0], y: values[1], x_vec: values[2], y_vec: values[3], radius, color};
         self.balls.push(ball);
     }
+    // pub fn add(&mut self) {
+    //     let radius = fastrand::i32(5..50) as f64;
+    //     let color = random_color();
+    //     let x_vec = fastrand::i32(1..15) as f64;
+    //     let y_vec = fastrand::i32(1..15) as f64;
+    //     let ball = Ball {x: 50.0, y: 50.0, x_vec, y_vec, radius, color};
+    //     self.balls.push(ball);
+    // }
 
 }
 
