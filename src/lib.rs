@@ -102,14 +102,14 @@ impl Balls {
                     colvec_y = colvec_y / colvec_amount;
 
                     //get amount auf (velocity) vector for each ball
-                    let ball_i_amount = (balls[i].x_vec).hypot(balls[i].y_vec) * 1.1;
-                    let ball_j_amount = (balls[j].x_vec).hypot(balls[j].y_vec) * 1.1;
+                    let ball_i_amount = (balls[i].x_vec).hypot(balls[i].y_vec);
+                    let ball_j_amount = (balls[j].x_vec).hypot(balls[j].y_vec);
                     
                     //save new vector
-                    balls[i].x_vec += colvec_x * ball_i_amount;
-                    balls[i].y_vec += colvec_y * ball_i_amount;
-                    balls[j].x_vec -= colvec_x * ball_j_amount;
-                    balls[j].y_vec -= colvec_y * ball_j_amount;
+                    balls[i].x_vec += colvec_x * ball_j_amount;
+                    balls[i].y_vec += colvec_y * ball_j_amount;
+                    balls[j].x_vec -= colvec_x * ball_i_amount;
+                    balls[j].y_vec -= colvec_y * ball_i_amount;
 
                     //set new ball positions (with new vector)
                     balls[i].x += balls[i].x_vec;
