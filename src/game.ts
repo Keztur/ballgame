@@ -31,7 +31,7 @@ init().then(() => {
 function simulation() {
 
     ctx.clearRect(0, 0, canvas.width, canvas.height)
-  
+
     let xMouseVec = x_mouse - x_lastmouse
     let yMouseVec = y_mouse - y_lastmouse
 
@@ -46,6 +46,11 @@ function simulation() {
 // move ball
 window.addEventListener("mousemove", (evt) => {
    
+    if (x_mouse == 0) {
+        x_lastmouse = evt.clientX
+        y_lastmouse = evt.clientY
+    }
+
     x_mouse = evt.clientX
     y_mouse = evt.clientY
 
