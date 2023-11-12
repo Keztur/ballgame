@@ -11,6 +11,8 @@ lazy_static! {
 
 pub const FRICTION: f64 = 0.994;  
 pub const FORCE: f64 = 0.1;
+pub const BOUNCE: f64 = 0.4;
+pub const TRANSFER: f64 = 0.4;
 
 
 #[wasm_bindgen]
@@ -104,12 +106,12 @@ impl Balls {
                     //get amount auf (velocity) vector for each ball
                     let ball_i_amount = (balls[i].x_vec).hypot(balls[i].y_vec);
                     let ball_j_amount = (balls[j].x_vec).hypot(balls[j].y_vec);
-                    
+
                     //save new vector
-                    balls[i].x_vec += colvec_x * ball_j_amount;
-                    balls[i].y_vec += colvec_y * ball_j_amount;
-                    balls[j].x_vec -= colvec_x * ball_i_amount;
-                    balls[j].y_vec -= colvec_y * ball_i_amount;
+                    balls[i].x_vec += (colvec_x * ball_i_amount) * BOUNCE + (colvec_x * ball_j_amount) * TRANSFER;
+                    balls[i].y_vec += (colvec_y * ball_i_amount) * BOUNCE + (colvec_y * ball_j_amount) * TRANSFER;
+                    balls[j].x_vec -= (colvec_x * ball_j_amount) * BOUNCE + (colvec_x * ball_i_amount) * TRANSFER;
+                    balls[j].y_vec -= (colvec_y * ball_j_amount) * BOUNCE + (colvec_y * ball_i_amount) * TRANSFER;
 
                     //set new ball positions (with new vector)
                     balls[i].x += balls[i].x_vec;
@@ -142,8 +144,10 @@ impl Balls {
         let values: [f64; 4];
 
         match ball_count {
-            0 => values = [600.0, 500.0, 0.0, 0.0],
-            1 => values = [100.0, 500.0, 7.0, 0.0],
+            0 => values = [700.0, 200.0, 0.0, 0.0],
+            1 => values = [100.0, 200.0, 7.0, 0.0],
+            2 => values = [700.0, 300.0, -7.0, 0.0],
+            3 => values = [100.0, 300.0, 5.0, 0.0],
             _=> values = [50.0, 50.0, 5.0, 5.0],
         }
 
