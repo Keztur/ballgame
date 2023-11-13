@@ -11,11 +11,22 @@
         background: #eee;
         display: block;
       }
+      #hint {
+        position: absolute;
+        left: 10px;
+        top: 10px; 
+        z-index: 1;
+        font-size: 2em;
+        font-family: "Lucida Console", "Courier New", monospace;
+        color: red;
+      }
     </style>
   </head>
   <body>
     <canvas id="myCanvas"></canvas>
-
+    <div id="hint">
+      Press Space
+    </div>
     <script type="module" src="./pkg/game.js"></script>
 
   </body>

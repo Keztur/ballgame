@@ -26,6 +26,7 @@ init().then(() => {
     setInterval(simulation, 10)
 })
 
+setTimeout(() => document.getElementById("hint")?.remove(), 5000)
 
 // ### FUNCTIONS ######################################
 function simulation() {
@@ -69,9 +70,6 @@ function resizeCanvas() {
 window.addEventListener("keydown", (event) => {
     if (event.key === ' ') {
         add_ball()
-        // let xMouseVec = Math.random() * 30
-        // let yMouseVec = Math.random() * 30
-        // run_sim(xMouseVec, yMouseVec, width, height, ctx)
     }
 });
 
