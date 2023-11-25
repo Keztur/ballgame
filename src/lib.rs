@@ -11,8 +11,8 @@ lazy_static! {
 
 pub const FRICTION: f64 = 0.994;  
 pub const FORCE: f64 = 0.1;
-pub const BOUNCE: f64 = 0.4;
-pub const TRANSFER: f64 = 0.4;
+pub const TRANSFER: f64 = 0.7;
+pub const KEEP: f64 = 0.1;
 
 
 #[wasm_bindgen]
@@ -81,37 +81,45 @@ impl Balls {
 
             for j in (i+1)..ubound {
                 
-                let distance: f64 = (balls[i].x - balls[j].x).hypot(balls[i].y - balls[j].y);
-
-                let intersection = balls[i].radius + balls[j].radius - distance;
-
-                if intersection > 0.0 {
+                if 
+                (balls[i].x - balls[j].x).powi(2) + (balls[i].y - balls[j].y).powi(2) < 
+                (balls[i].radius + balls[j].radius).powi(2) 
+                {
                     
-                    //reset ball to last position before collision
-                    balls[i].x = balls[i].x - balls[i].x_vec;
-                    balls[i].y = balls[i].y - balls[i].y_vec;
-                    balls[j].x = balls[j].x - balls[j].x_vec;
-                    balls[j].y = balls[j].y - balls[j].y_vec;
-
                     //calculate collision vector
                     let mut colvec_x = balls[i].x - balls[j].x;
                     let mut colvec_y = balls[i].y - balls[j].y;
+                    
+                    // //get amount of collision vector
+                    let colvec_amount = (colvec_x).hypot(colvec_y);
+                    let intersection = balls[i].radius + balls[j].radius - colvec_amount;
+                    
+                    let offset_factor = intersection / colvec_amount;
 
-                    //get amount of collision vector
-                    let colvec_amount = (colvec_x).hypot(colvec_y).abs();
+                    balls[i].x += colvec_x * offset_factor;
+                    balls[i].y += colvec_y * offset_factor;
+                    balls[j].x -= colvec_x * offset_factor;
+                    balls[j].y -= colvec_y * offset_factor;
+                    
                     //normalize collision vector
                     colvec_x = colvec_x / colvec_amount;
                     colvec_y = colvec_y / colvec_amount;
+
 
                     //get amount auf (velocity) vector for each ball
                     let ball_i_amount = (balls[i].x_vec).hypot(balls[i].y_vec);
                     let ball_j_amount = (balls[j].x_vec).hypot(balls[j].y_vec);
 
+                    // let i_mass = balls[i].radius;
+                    // let j_mass = balls[j].radius;
+
+                    // let mass_ratio = balls[i].radius / balls[j].radius;
+
                     //save new vector
-                    balls[i].x_vec += (colvec_x * ball_i_amount) * BOUNCE + (colvec_x * ball_j_amount) * TRANSFER;
-                    balls[i].y_vec += (colvec_y * ball_i_amount) * BOUNCE + (colvec_y * ball_j_amount) * TRANSFER;
-                    balls[j].x_vec -= (colvec_x * ball_j_amount) * BOUNCE + (colvec_x * ball_i_amount) * TRANSFER;
-                    balls[j].y_vec -= (colvec_y * ball_j_amount) * BOUNCE + (colvec_y * ball_i_amount) * TRANSFER;
+                    balls[i].x_vec = (colvec_x * ball_j_amount * TRANSFER) + (balls[i].x_vec * KEEP);
+                    balls[i].y_vec = (colvec_y * ball_j_amount * TRANSFER) + (balls[i].y_vec * KEEP);
+                    balls[j].x_vec = -(colvec_x * ball_i_amount * TRANSFER) + (balls[j].x_vec * KEEP);
+                    balls[j].y_vec = -(colvec_y * ball_i_amount * TRANSFER) + (balls[j].y_vec * KEEP);
 
                     //set new ball positions (with new vector)
                     balls[i].x += balls[i].x_vec;
