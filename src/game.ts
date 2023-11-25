@@ -11,6 +11,8 @@ let y_lastmouse = 0;
 let width = 10
 let height = 10
 
+let mode = 1 //1:bubbles, 2:rigid
+
 resizeCanvas()
 
 // let field = [0, 0]
@@ -36,7 +38,7 @@ function simulation() {
     let xMouseVec = x_mouse - x_lastmouse
     let yMouseVec = y_mouse - y_lastmouse
 
-    run_sim(xMouseVec, yMouseVec, width, height, ctx)
+    run_sim(xMouseVec, yMouseVec, width, height, ctx, mode)
 
     x_lastmouse = x_mouse
     y_lastmouse = y_mouse
@@ -68,11 +70,30 @@ function resizeCanvas() {
 }
 
 window.addEventListener("keydown", (event) => {
-    if (event.key === ' ') {
-        add_ball()
-    }
+    
+    switch (event.key) {
+        case ' ':
+            add_ball()
+            break
+        case 'b':
+            mode = 1
+            setModeHint("bubble")
+            break
+        case 'r':
+            mode = 2
+            setModeHint("rigid")
+            break
+}
 });
 
+
+function setModeHint(mode: string) {
+    const hint_node = document.getElementById("mode")
+    if (hint_node) {
+        hint_node.innerHTML = mode + " collision activated"
+        setTimeout(() => hint_node.innerHTML = "", 5000)
+    }
+}
 
 // function drawCenter(color: string, x: number, y: number, size: number) {
 //     ctx.beginPath();
