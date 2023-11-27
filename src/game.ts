@@ -11,7 +11,7 @@ let y_lastmouse = 0;
 let width = 10
 let height = 10
 
-let mode = 1 //1:bubbles, 2:rigid
+let mode = 2 //1:bubbles, 2:rigid
 
 resizeCanvas()
 
