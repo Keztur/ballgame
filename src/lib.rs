@@ -94,8 +94,8 @@ impl Balls {
                     }
                         
                     //calculate collision vector
-                    let mut colvec_x = balls[j].x - balls[i].x;
-                    let mut colvec_y = balls[j].y - balls[i].y;
+                    let mut colvec_x = balls[i].x - balls[j].x;
+                    let mut colvec_y = balls[i].y - balls[j].y;
                   
                     
                     // //get amount of collision vector
@@ -109,52 +109,50 @@ impl Balls {
                         let intersection = balls[i].radius + balls[j].radius - colvec_amount;
                         let offset_factor = intersection / 2.0;
                         
-                        balls[i].x -= colvec_x * offset_factor;
-                        balls[i].y -= colvec_y * offset_factor;
-                        balls[j].x += colvec_x * offset_factor;
-                        balls[j].y += colvec_y * offset_factor;
+                        balls[i].x += colvec_x * offset_factor;
+                        balls[i].y += colvec_y * offset_factor;
+                        balls[j].x -= colvec_x * offset_factor;
+                        balls[j].y -= colvec_y * offset_factor;
                     }
 
+                    // https://flatredball.com/documentation/tutorials/math/circle-collision/ ####################
 
-
-                    // Vector perpendicular to (x, y) is (-y, x)
-                    // tangentVector.X = circle2.Y - circle1.Y;
-                    // tangentVector.Y = -( circle2.X - circle1.X );
-
-                    // let tanx = 
-
+                    //get tangent vector
                     let tan_x = balls[j].y - balls[i].y;
                     let tan_y = -(balls[j].x - balls[i].x);
 
-                    let tan_amount = (tan_x).hypot(tan_y);
+                    let tan_amount = (tan_x).hypot(tan_y); //needed for normalization
 
-                    //normalize collision vector
+                    //normalize collision tangent
                     let tan_x = tan_x / tan_amount;
                     let tan_y = tan_y / tan_amount;
 
-
+                    //get relative speed of balls to each other
                     let relx = balls[j].x_vec -  balls[i].x_vec;
                     let rely = balls[j].y_vec -  balls[i].y_vec;
-
+                    
+                    //velocity vector component parallel to tangent
                     let length = relx * tan_x + tan_y * rely; //dot product of relative vel vector and tangent vector
 
+                    //calculate tangential vector component
                     let tangent_x = tan_x * length;
                     let tangent_y = tan_y * length;
 
+                    //calculate perpendicular vector component (bounce vector)
                     let perpen_x =  relx - tangent_x;
                     let perpen_y =  rely - tangent_y;
-
-                    //get amount auf (velocity) vector for each ball
-                    let ball_i_amount = (balls[i].x_vec).hypot(balls[i].y_vec);
-                    let ball_j_amount = (balls[j].x_vec).hypot(balls[j].y_vec);
-
-
-                    //save new vector
+                    
                     if mode == 1 {  //BUBBLES
+                        
+                        //get amount auf (velocity) vector for each ball
+                        let ball_i_amount = (balls[i].x_vec).hypot(balls[i].y_vec);
+                        let ball_j_amount = (balls[j].x_vec).hypot(balls[j].y_vec);
+                    
                         balls[i].x_vec += (colvec_x * ball_i_amount) * 0.4 + (colvec_x * ball_j_amount) * 0.4;
                         balls[i].y_vec += (colvec_y * ball_i_amount) * 0.4 + (colvec_y * ball_j_amount) * 0.4;
                         balls[j].x_vec -= (colvec_x * ball_j_amount) * 0.4 + (colvec_x * ball_i_amount) * 0.4;
                         balls[j].y_vec -= (colvec_y * ball_j_amount) * 0.4 + (colvec_y * ball_i_amount) * 0.4;
+
                     } else {        //RIGID
 
                         // let mi = (balls[i].radius / 2.0).powi(2) * PI;
@@ -164,8 +162,8 @@ impl Balls {
                         // let vel_i = (((mi-mj)/m) * ball_i_amount) + (((mj + mj)/m) * ball_j_amount);
                         // let vel_j = (((mj-mi)/m) * ball_j_amount) + (((mi + mi)/m) * ball_i_amount);
 
-                        balls[i].y_vec += perpen_y;
                         balls[i].x_vec += perpen_x;
+                        balls[i].y_vec += perpen_y;
                         balls[j].x_vec -= perpen_x;
                         balls[j].y_vec -= perpen_y;
 
