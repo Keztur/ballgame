@@ -142,12 +142,12 @@ impl Balls {
                     let perpen_x =  relx - tangent_x;
                     let perpen_y =  rely - tangent_y;
                     
-                    if mode == 1 {  //BUBBLES
-                        
-                        //get amount auf (velocity) vector for each ball
-                        let ball_i_amount = (balls[i].x_vec).hypot(balls[i].y_vec);
-                        let ball_j_amount = (balls[j].x_vec).hypot(balls[j].y_vec);
                     
+                    //get amount auf (velocity) vector for each ball
+                    let ball_i_amount = (balls[i].x_vec).hypot(balls[i].y_vec);
+                    let ball_j_amount = (balls[j].x_vec).hypot(balls[j].y_vec);
+                    
+                    if mode == 1 {  //BUBBLES
                         balls[i].x_vec += (colvec_x * ball_i_amount) * 0.4 + (colvec_x * ball_j_amount) * 0.4;
                         balls[i].y_vec += (colvec_y * ball_i_amount) * 0.4 + (colvec_y * ball_j_amount) * 0.4;
                         balls[j].x_vec -= (colvec_x * ball_j_amount) * 0.4 + (colvec_x * ball_i_amount) * 0.4;
@@ -166,11 +166,6 @@ impl Balls {
                         balls[i].y_vec += perpen_y;
                         balls[j].x_vec -= perpen_x;
                         balls[j].y_vec -= perpen_y;
-
-                        // balls[i].x_vec +=  perpen_x * vel_i;
-                        // balls[i].y_vec +=  perpen_y * vel_i;
-                        // balls[j].x_vec -= -perpen_x * vel_j;
-                        // balls[j].y_vec -= -perpen_y * vel_j;
 
                         // balls[i].x_vec = (colvec_x * ball_j_amount * TRANSFER) + (balls[i].x_vec * KEEP);
                         // balls[i].y_vec = (colvec_y * ball_j_amount * TRANSFER) + (balls[i].y_vec * KEEP);
@@ -210,9 +205,9 @@ impl Balls {
 
         match ball_count {
             0 => values = [700.0, 200.0, 0.0, 0.0, 50.0],
-            1 => values = [100.0, 200.0, 7.0, 0.0, 15.0],
+            1 => values = [100.0, 200.0, 7.0,  0.0, 15.0],
             2 => values = [700.0, 300.0, -7.0, 0.0, 50.0],
-            3 => values = [100.0, 300.0, 5.0, 0.0, 15.0],
+            3 => values = [100.0, 300.0, 5.0, 1.0, 15.0],
             _=> values = [50.0, 50.0, fastrand::i32(1..15) as f64, fastrand::i32(1..15) as f64, radius],
         }
 
