@@ -1,6 +1,7 @@
 use wasm_bindgen::prelude::*;
 use web_sys::CanvasRenderingContext2d;
-use std::{vec::Vec, f64::consts::PI};
+// use std::{vec::Vec, f64::consts::PI};
+use std::vec::Vec;
 
 use lazy_static::lazy_static; // 1.4.0
 use std::sync::Mutex;
